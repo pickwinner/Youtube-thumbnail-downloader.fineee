@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>YouTube Thumbnail Downloader</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #000000;
+        padding: 40px;
+        text-align: center;
+        color: white;
+    }
+    input {
+        width: 60%;
+        padding: 12px;
+        font-size: 18px;
+        border: 2px solid #14b8a6;
+        border-radius: 8px;
+        background: #111;
+        color: white;
+    }
+    button {
+        padding: 12px 20px;
+        font-size: 18px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 8px;
+        border: none;
+        background: #14b8a6; /* teal blue */
+        color: black;
+        font-weight: bold;
+    }
+    img {
+        margin-top: 20px;
+        max-width: 90%;
+        border: 2px solid #14b8a6;
+        border-radius: 8px;
+    }
+</style>
+</head>
+<body>
+
+<h1>YouTube Thumbnail Downloader</h1>
+
+<input id="urlInput" type="text" placeholder="Paste YouTube Video Link">
+
+<br>
+<button onclick="getThumbnail()">Get Thumbnail</button>
+
+<div id="thumbContainer"></div>
+
+<script>
+function getThumbnail() {
+    let url = document.getElementById("urlInput").value;
+    if (!url) return alert("Paste a YouTube link first.");
+
+    // Extract video ID
+    let videoId = "";
+    try {
+        videoId = new URL(url).searchParams.get("v")
+               || url.split("youtu.be/")[1]?.split("?")[0];
+    } catch {
+        alert("Invalid YouTube URL");
+        return;
+    }
+
+    // Maximum quality
+    let maxThumb = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+
+    document.getElementById("thumbContainer").innerHTML = `
+        <img src="${maxThumb}" id="thumbImg">
+        <br>
+        <button onclick="downloadImage('${maxThumb}')">Download Thumbnail</button>
+    `;
+}
+
+// Direct download function (no new tab)
+function downloadImage(url) {
+    fetch(url)
+        .then(response => response.blob())
+        .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = "thumbnail.jpg";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl);
+        })
+        .catch(() => alert("Could not download thumbnail."));
+}
+</script>
+
+</body>
+</html>
